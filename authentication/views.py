@@ -8,6 +8,7 @@ from rest_framework import status, generics
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate
 from rest_framework_simplejwt.tokens import RefreshToken
+from django.shortcuts import render
 
 class LoginAPIView(APIView):
     permission_classes = [AllowAny]
@@ -49,3 +50,6 @@ class UserDetailAPI(APIView):
 class RegisterUserAPIView(generics.CreateAPIView):
   permission_classes = [AllowAny]
   serializer_class = UserRegisterSerializer
+
+def profile(request):
+    return render(request, 'profile.html')
