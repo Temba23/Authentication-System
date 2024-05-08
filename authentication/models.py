@@ -71,3 +71,24 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     def email_user(self, subject, message, from_email=None, **kwargs):
         """Send an email to this user."""
         send_mail(subject, message, from_email, [self.email], **kwargs)
+
+
+    
+class OTPVerification(models.Model):
+    user = models.ForeignKey(
+        CustomUser, on_delete=models.PROTECT, blank=True, null=True, related_name="user_otp")
+    otp_code = models.CharField(max_length=6, blank=True, null=True)
+    
+    email = models.CharField(max_length=50, blank=True, null=True, default="")
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    created_by = models.ForeignKey(CustomUser, on_delete=models.DO_NOTHING,
+                                   null=True, blank=True, related_name="otpverification_created_by")
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_by = models.ForeignKey(CustomUser, on_delete=models.DO_NOTHING,
+                                   null=True, blank=True, related_name="otpverification_updated_by",)
+    updated_at = models.DateTimeField(blank=True, null=True)
+    is_archived = models.BooleanField(default=False)
+    archived_at = models.DateTimeField(null=True, blank=True)
+    otp_expiry = models.DateTimeField(blank=True, null=True)
+    is_verified = models.BooleanField(default=False)
