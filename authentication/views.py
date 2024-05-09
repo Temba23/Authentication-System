@@ -27,8 +27,9 @@ class LoginAPIView(APIView):
             # max_otp_try = int(user_otp.max_otp_try) if user_otp.max_otp_try else 0
             # if max_otp_try < 3:
             otp = random.randint(10000, 99999)
-            otp_expiry = timezone.now() + datetime.timedelta(minutes=1)
+            otp_expiry = timezone.now() + datetime.timedelta(minutes=3)
             user_otp.otp_code = otp
+            user_otp.is_verified = False
             user_otp.otp_expiry = otp_expiry
             # user_otp.max_otp_try = str(max_otp_try + 1)
             user_otp.save()
@@ -55,11 +56,20 @@ class VerifyAPIView(APIView):
         otp = OTPVerification.objects.filter(otp_code=otp_code, user=user_id, is_verified=False).first()
         current_time = timezone.now()
         
+        if otp is None:
+            otp_user = OTPVerification.objects.filter(user_id=user_id).first()
+            otp_user.max_try += 1
+            otp_user.save()
+            return Response("Invalid OTP.", status=status.HTTP_400_BAD_REQUEST)
+        
         if otp.otp_expiry and current_time < otp.otp_expiry:
-            otp.is_verified = True
-            otp.save()
-            refresh = RefreshToken.for_user(otp.user)
-            return Response({'message': "Login Successful", 'isLogin': True, 'refresh_token': str(refresh), 'access_token': str(refresh.access_token)})
+            if otp.max_try < 3:
+                otp.is_verified = True
+                otp.save()
+                refresh = RefreshToken.for_user(otp.user)
+                return Response({'message': "Login Successful", 'isLogin': True, 'refresh_token': str(refresh), 'access_token': str(refresh.access_token)})
+            else:
+                return Response("Max OTP tries reached. Thus, token is deactivated.", status=status.HTTP_400_BAD_REQUEST)
         else:
             return Response("OTP has expired.", status=status.HTTP_400_BAD_REQUEST)
 
