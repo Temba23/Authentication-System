@@ -67,6 +67,17 @@ class VerifyAPIView(APIView):
                 otp.is_verified = True
                 otp.save()
                 refresh = RefreshToken.for_user(otp.user)
+
+                try:
+                    send_mail(
+                        subject="Login Alert!",
+                        message="Login successful.",
+                        from_email=settings.EMAIL_HOST_USER,
+                        recipient_list=[otp.user.email],
+                    )
+                except Exception as e:
+                    return Response(f"Error sending email: {str(e)}", status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                
                 return Response({'message': "Login Successful", 'isLogin': True, 'refresh_token': str(refresh), 'access_token': str(refresh.access_token)})
             else:
                 return Response("Max OTP tries reached. Thus, token is deactivated.", status=status.HTTP_400_BAD_REQUEST)

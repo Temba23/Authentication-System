@@ -9,6 +9,7 @@ urlpatterns = [
     path('logout/', LogoutAPIView.as_view(), name='logout'),
     path('register/', RegisterUserAPIView.as_view(), name="register"), 
     path('me/', UserDetailAPI.as_view(), name="user-detail"),
+    
 
     # JWT
     path('api/token/', jwt_views.TokenObtainPairView.as_view(), name='token_obtain_pair'),
