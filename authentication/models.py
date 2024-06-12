@@ -84,3 +84,9 @@ class OTPVerification(models.Model):
     otp_expiry = models.DateTimeField(blank=True, null=True)
     is_verified = models.BooleanField(default=False)
     max_try = models.IntegerField(default=0)
+
+
+class SecurityQuestion(models.Model):
+    questions = models.CharField(max_length=60)
+    answer = models.CharField(max_length=60)
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
