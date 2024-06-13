@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import CustomUser
+from .models import CustomUser, SecurityQuestion
 from rest_framework.validators import UniqueValidator
 from django.contrib.auth.password_validation import validate_password
 from django.conf import settings
@@ -53,3 +53,18 @@ class UserSerializer(serializers.ModelSerializer):
   class Meta:
     model = CustomUser
     fields = ["id", "first_name", "last_name", "username"]
+
+
+class SecurityQuestionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SecurityQuestion
+        fields = "__all__"
+
+    def validate(self, data):
+        user = self.context['request'].user
+        question = data.get('questions')
+        
+        if SecurityQuestion.objects.filter(user=user, questions=question).exists():
+            raise serializers.ValidationError("You have already answered this question.")
+        
+        return data

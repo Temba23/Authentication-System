@@ -1,6 +1,6 @@
-from .serializers import UserSerializer, UserRegisterSerializer
+from .serializers import UserSerializer, UserRegisterSerializer, SecurityQuestionSerializer
 from rest_framework.views import APIView
-from .models import CustomUser, OTPVerification
+from .models import CustomUser, OTPVerification, SecurityQuestion
 from rest_framework.permissions import AllowAny
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -118,3 +118,20 @@ class RegisterUserAPIView(generics.CreateAPIView):
 
 def profile(request):
     return render(request, 'profile.html')
+
+class SecurityQuestionAPIView(APIView):
+    serializer_class = SecurityQuestionSerializer    
+
+    def get(self, request):
+        user = request.user
+        question = SecurityQuestion.objects.filter(user=user)
+        serializer_data = self.serializer_class(question, many=True)
+        return Response({"Data" : serializer_data.data}, status=status.HTTP_200_OK)
+    
+    def post(Self, request):
+        user = request.user
+        serializer = Self.serializer_class(data=request.data, context={"request":request})
+        if serializer.is_valid():
+            serializer.save(user=user)
+            return Response({"Data" : serializer.data}, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)       

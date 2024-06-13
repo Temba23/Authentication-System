@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
 from django import forms
-
+from .models import CustomUser, SecurityQuestion
 User = get_user_model()
 
 class UserCreationForm(forms.ModelForm):
@@ -37,3 +37,4 @@ class UserAdmin(admin.ModelAdmin):
 
     
 admin.site.unregister(Group)
+admin.site.register(SecurityQuestion)

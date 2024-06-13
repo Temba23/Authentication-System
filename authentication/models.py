@@ -86,7 +86,14 @@ class OTPVerification(models.Model):
     max_try = models.IntegerField(default=0)
 
 
+questions = (
+    (1,'What is mothers name ?'),
+    (2, 'What was the name of your first pet ?'),
+    (3, 'What school you graduated from ?'),
+    (4, 'What is your favorite color ?'),
+    (5, 'How many siblings you have ?')
+)
 class SecurityQuestion(models.Model):
-    questions = models.CharField(max_length=60)
+    questions = models.CharField(max_length=60, choices=questions)
     answer = models.CharField(max_length=60)
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
