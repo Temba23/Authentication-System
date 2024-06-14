@@ -63,8 +63,16 @@ class SecurityQuestionSerializer(serializers.ModelSerializer):
     def validate(self, data):
         user = self.context['request'].user
         question = data.get('questions')
-        
-        if SecurityQuestion.objects.filter(user=user, questions=question).exists():
-            raise serializers.ValidationError("You have already answered this question.")
-        
+        method = self.context['request'].method
+
+        if method != "PUT":
+            if SecurityQuestion.objects.filter(user=user, questions=question).exists():
+                raise serializers.ValidationError("You have already answered this question.")
+                    
         return data
+    
+def update(self, instance, validated_data):
+    instance.questions = validated_data.get('questions', instance.questions)
+    instance.answer = validated_data.get('answer', instance.answer)
+    instance.save()
+    return instance

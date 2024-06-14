@@ -135,3 +135,18 @@ class SecurityQuestionAPIView(APIView):
             serializer.save(user=user)
             return Response({"Data" : serializer.data}, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)       
+    
+    def put(self, request):
+        user = request.user
+
+        question = request.data.get('questions')
+        print(question)
+        try :
+            instance = SecurityQuestion.objects.get(questions=question, user=user)
+            print(instance)
+        except SecurityQuestion.DoesNotExist:
+            return Response("Question Not Found.")
+        serializer = self.serializer_class(instance, data=request.data, context={"request":request})
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response("Security Question Updated.", status=status.HTTP_200_OK)
