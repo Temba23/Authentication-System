@@ -150,3 +150,41 @@ class SecurityQuestionAPIView(APIView):
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response("Security Question Updated.", status=status.HTTP_200_OK)
+
+class UserPasswordReset(APIView):
+    permission_classes = [AllowAny]
+    def get(self, request):
+        return Response("Not Allowed.")
+    
+    def post(self, request):
+        username = request.data.get('username')
+        user = CustomUser.objects.get(username=username)
+        if user :
+            req_question = request.data.get('question')
+            req_answer= request.data.get('answer')
+            question = SecurityQuestion.objects.get(questions=req_question)
+            answer = SecurityQuestion.objects.get(answer=req_answer, user=user)
+
+            if answer == user.user_security:
+                user_otp, created = OTPVerification.objects.get_or_create(user=user)
+                otp = random.randint(10000, 99999)
+                otp_expiry = timezone.now() + datetime.timedelta(minutes=3)
+                user_otp.otp_code = otp
+                user_otp.is_verified = False
+                user_otp.otp_expiry = otp_expiry
+                user_otp.save()
+
+                send_mail(
+                    subject='OTP Verification',
+                    message=f'Hi {user.username}, Your OTP code is {otp}.',
+                    from_email=settings.EMAIL_HOST_USER,
+                    recipient_list=[user.email],
+                )
+                return Response("Successfully generated OTP", status=status.HTTP_200_OK)
+            else:
+                return Response("Security Answers Incorrect.", status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response("User don't exist.", status=status.HTTP_400_BAD_REQUEST)
+
+            
+

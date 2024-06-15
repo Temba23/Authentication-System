@@ -96,4 +96,4 @@ questions = (
 class SecurityQuestion(models.Model):
     questions = models.CharField(max_length=60, choices=questions)
     answer = models.CharField(max_length=60)
-    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='user_security')
