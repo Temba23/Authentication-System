@@ -158,31 +158,31 @@ class UserPasswordReset(APIView):
     
     def post(self, request):
         username = request.data.get('username')
-        user = CustomUser.objects.get(username=username)
-        if user :
-            req_question = request.data.get('question')
-            req_answer= request.data.get('answer')
-            try:
-                question = SecurityQuestion.objects.filter(questions=req_question, user=user).first()
-            except SecurityQuestion.DoesNotExist:
-                return Response("Security Question Does not exist.", status=status.HTTP_400_BAD_REQUEST)
-
-            if question.answer:
-                pass
-            else:
-                return Response("No Security answers for the user.", status=status.HTTP_400_BAD_REQUEST)
-            if question.answer == req_answer:
-                otp = random.randint(10000, 99999)
-                user.password = otp
-                user.save()
-                send_mail(
-                    subject='New Password',
-                    message=f'Hi {user.username}, Your new password is {otp}.',
-                    from_email=settings.EMAIL_HOST_USER,
-                    recipient_list=[user.email],
-                )
-                return Response("Successfully generated PW", status=status.HTTP_200_OK)
-            else:
-                return Response("Security Answers Incorrect.", status=status.HTTP_400_BAD_REQUEST)
-        else:
+        req_question = request.data.get('question')
+        req_answer= request.data.get('answer')
+        try :
+            user = CustomUser.objects.get(username=username)
+        except CustomUser.DoesNotExist:
             return Response("User don't exist.", status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            question = SecurityQuestion.objects.filter(questions=req_question, user=user).first()
+        except SecurityQuestion.DoesNotExist:
+            return Response("Security Question Does not exist.", status=status.HTTP_400_BAD_REQUEST)
+
+        if question.answer is None:
+            return Response("No Security answers for the user.", status=status.HTTP_400_BAD_REQUEST)
+        
+        if question.answer == req_answer:
+            otp = random.randint(10000, 99999)
+            user.set_password(str(otp))
+            user.save()
+            send_mail(
+                subject='New Password',
+                message=f'Hi {user.username}, Your new password is {otp}.',
+                from_email=settings.EMAIL_HOST_USER,
+                recipient_list=[user.email],
+            )
+            return Response("Successfully generated PW", status=status.HTTP_200_OK)
+        else:
+            return Response("Security Answers Incorrect.", status=status.HTTP_400_BAD_REQUEST)
