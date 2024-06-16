@@ -162,29 +162,27 @@ class UserPasswordReset(APIView):
         if user :
             req_question = request.data.get('question')
             req_answer= request.data.get('answer')
-            question = SecurityQuestion.objects.get(questions=req_question)
-            answer = SecurityQuestion.objects.get(answer=req_answer, user=user)
+            try:
+                question = SecurityQuestion.objects.filter(questions=req_question, user=user).first()
+            except SecurityQuestion.DoesNotExist:
+                return Response("Security Question Does not exist.", status=status.HTTP_400_BAD_REQUEST)
 
-            if answer == user.user_security:
-                user_otp, created = OTPVerification.objects.get_or_create(user=user)
+            if question.answer:
+                pass
+            else:
+                return Response("No Security answers for the user.", status=status.HTTP_400_BAD_REQUEST)
+            if question.answer == req_answer:
                 otp = random.randint(10000, 99999)
-                otp_expiry = timezone.now() + datetime.timedelta(minutes=3)
-                user_otp.otp_code = otp
-                user_otp.is_verified = False
-                user_otp.otp_expiry = otp_expiry
-                user_otp.save()
-
+                user.password = otp
+                user.save()
                 send_mail(
-                    subject='OTP Verification',
-                    message=f'Hi {user.username}, Your OTP code is {otp}.',
+                    subject='New Password',
+                    message=f'Hi {user.username}, Your new password is {otp}.',
                     from_email=settings.EMAIL_HOST_USER,
                     recipient_list=[user.email],
                 )
-                return Response("Successfully generated OTP", status=status.HTTP_200_OK)
+                return Response("Successfully generated PW", status=status.HTTP_200_OK)
             else:
                 return Response("Security Answers Incorrect.", status=status.HTTP_400_BAD_REQUEST)
         else:
             return Response("User don't exist.", status=status.HTTP_400_BAD_REQUEST)
-
-            
-

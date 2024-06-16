@@ -1,5 +1,5 @@
 from django.urls import path, include
-from .views import RegisterUserAPIView, UserDetailAPI, LoginAPIView, LogoutAPIView, VerifyAPIView, SecurityQuestionAPIView
+from .views import RegisterUserAPIView, UserDetailAPI, LoginAPIView, LogoutAPIView, VerifyAPIView, SecurityQuestionAPIView, UserPasswordReset
 from rest_framework_simplejwt import views as jwt_views
 
 urlpatterns = [
@@ -17,4 +17,5 @@ urlpatterns = [
 
     # Security Questions
     path('security/', SecurityQuestionAPIView.as_view(), name="security_questions"),
+    path('pw/', UserPasswordReset.as_view(), name="password_reset"),
 ]
