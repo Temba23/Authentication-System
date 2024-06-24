@@ -32,4 +32,7 @@ To Install The Authentication System in your project :
 5. Run application:
    - python manage.py runserver
 
+API Documentation View: 
+   ![image](https://github.com/Temba23/Authentication-System/assets/126068369/0d3f1f34-4041-43d6-829e-86d7859ce16f)
+
 Author : Temba Sherpa
