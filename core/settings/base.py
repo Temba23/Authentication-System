@@ -25,7 +25,6 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-lq$7l_pwg9cg5tdyl(ei$yu0!#)6yebpymfk7)4&xip+su*jps'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -77,7 +76,16 @@ REST_FRAMEWORK = {
     )
 }
 
-
+DATABASES = {
+    "default": {
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": os.environ.get("DB_NAME", "db.sqlite3"),
+        "USER": os.environ.get("DB_USER"),
+        "PASSWORD": os.environ.get("DB_PASSWORD"),
+        "HOST": os.environ.get("DB_HOST"),
+        "PORT": os.environ.get("DB_PORT"),
+    }
+}
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -111,18 +119,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'core.wsgi.application'
 
-
-# Database
-# https://docs.djangoproject.com/en/5.0/ref/settings/#databases
-
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
-}
-
-DATABASES['default'] = dj_database_url.parse("postgresql://authentication_21il_user:10NbehtUvbIbsyGj1tIRRkRHsB04ScPj@dpg-cq78dvg8fa8c73873e8g-a.singapore-postgres.render.com/authentication_21il")
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
@@ -179,7 +175,7 @@ SIMPLE_JWT = {
     "UPDATE_LAST_LOGIN": False,
 
     "ALGORITHM": "HS256",
-    "SIGNING_KEY": SECRET_KEY,
+    "SIGNING_KEY": os.environ['SECRET_KEY'],
     "VERIFYING_KEY": "",
     "AUDIENCE": None,
     "ISSUER": None,
