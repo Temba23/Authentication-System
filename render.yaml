@@ -6,19 +6,29 @@ services:
   - type: web
     name: authentication-system
     env: python
+    plan: free
     buildCommand: "./build.sh"
-    startCommand: "gunicorn core.wsgi:application"
+    startCommand: "gunicorn core.wsgi:application --bind 0.0.0.0:$PORT"
     envVars:
+      # Use Render-managed Postgres database URL
       - key: DATABASE_URL
         fromDatabase:
           name: auth-db
           property: connectionString
+
+      # Secret key generated automatically by Render
       - key: SECRET_KEY
         generateValue: true
+
+      # Debug mode off for production
       - key: DEBUG
         value: "0"
+
+      # Allowed hosts for your deployed app
       - key: ALLOWED_HOSTS
         value: "authentication-system.onrender.com"
+
+      # Email and Google OAuth credentials (set manually)
       - key: EMAIL
         sync: false
       - key: PASSWORD
@@ -27,3 +37,7 @@ services:
         sync: false
       - key: CLIENT_SECRET
         sync: false
+
+    autoDeploy: true
+    branch: main
+    region: oregon
